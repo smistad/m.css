@@ -16,7 +16,9 @@
           {% for name, target in compound.breadcrumb[:-1] %}
           <span class="m-breadcrumb"><a href="{{ target }}">{{ name }}</a> &raquo;</span>
           {% endfor %}
+          {% if compound.breadcrumb[-1][0] != PROJECT_NAME %} {# Drop title on main page #}
           {{ compound.breadcrumb[-1][0] }}{% if compound.since %} {{ compound.since }}{% endif %}
+          {% endif %}
           {# need an explicit space here otherwise the newline gets removed #}
 
         </h1>
