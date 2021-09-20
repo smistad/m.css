@@ -2047,11 +2047,38 @@ def parse_func(state: State, element: ET.Element):
             param.description, param.direction = '', ''
         func.params += [param]
 
+    # FAST HACK STARTED!
+    def strip_html(text):
+        return re.sub('<[^<]+?>', '', text)
+    if func.name.find('FAST_CONSTRUCTOR') >= 0:
+        #print(func.params)
+        class_name = strip_html(func.params[0].type)
+        new_params = []
+        for i in range(1, len(func.params), 2):
+            type_param = func.params[i].type
+            name_param = func.params[i+1].type
+            param = Empty()
+            param.type = type_param
+            param.name = name_param
+            #default_param = func.params[i+2].type
+            param.description, param.direction = '', ''
+            param.type_name = param.type + " " + param.name
+            param.default = ''
+            new_params.append(param)
+        func.params = new_params
+        print(class_name)
+        func.type = 'std::shared_ptr&lt;' + class_name +'&gt;'
+        func.name = 'create'
+        #exit(0)
+    # END FAST HACK
+
     # Some param description got unused
     if params: logging.warning("{}: function parameter description doesn't match parameter names: {}".format(state.current, repr(params)))
 
     if func.base_url == state.current_compound_url and (func.description or func.has_template_details or func.has_param_details or func.return_value or func.return_values or func.exceptions):
         func.has_details = True # has_details might already be True from above
+
+
     if func.brief or func.has_details:
         # Avoid duplicates in search
         if func.base_url == state.current_compound_url and not state.config['SEARCH_DISABLED']:
