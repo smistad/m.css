@@ -2053,7 +2053,9 @@ def parse_func(state: State, element: ET.Element):
     if func.name.find('FAST_CONSTRUCTOR') >= 0:
         #print(func.params)
         class_name = strip_html(func.params[0].type)
+        #print(class_name)
         new_params = []
+        #print(params)
         for i in range(1, len(func.params), 2):
             type_param = func.params[i].type
             name_param = func.params[i+1].type
@@ -2062,14 +2064,16 @@ def parse_func(state: State, element: ET.Element):
             param.name = name_param
             #default_param = func.params[i+2].type
             param.description, param.direction = '', ''
+            if name_param in params:
+                print(name_param, params[name_param])
+                param.description, param.direction = params[name_param]
+                func.has_param_details = True
             param.type_name = param.type + " " + param.name
             param.default = ''
-            new_params.append(param)
+            new_params += [param]
         func.params = new_params
-        print(class_name)
         func.type = 'std::shared_ptr&lt;' + class_name +'&gt;'
         func.name = 'create'
-        #exit(0)
     # END FAST HACK
 
     # Some param description got unused
